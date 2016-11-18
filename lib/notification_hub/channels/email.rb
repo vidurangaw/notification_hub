@@ -1,20 +1,21 @@
 module NotificationHub
 	module Channels
 		module Email			
-	    @default_gateway = :action_mailer
+	    #@default_gateway = :action_mailer
 	    
 	    class << self
-				attr_accessor :default_gateway				
+				attr_accessor :gateway		
+				attr_accessor :options	
 
-				def send_message(topic, variables, gateway)	
-					gateway_ = gateway || default_gateway
-					"NotificationHub::Channels::Email::#{gateway_.to_s.camelize}".constantize.send_message(topic, variables)
+				def send_message(event, data, options)
+					"NotificationHub::Channels::Email::#{gateway.to_s.camelize}".constantize.send_message(event, data, options)
 				end
 
-				def default_gateway
-					@default_gateway
-				end
+				# def default_gateway
+				# 	@default_gateway
+				# end
 			end
 	  end
   end
 end
+  

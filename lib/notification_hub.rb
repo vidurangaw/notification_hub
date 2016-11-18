@@ -1,4 +1,6 @@
 require "notification_hub/version"
+require 'http_logger'
+require "httparty"
 
 module NotificationHub  
 
@@ -10,6 +12,7 @@ module NotificationHub
   end
 
   class << self  
+  	include HTTParty
 		def test
 			return "success"
 		end
@@ -31,11 +34,26 @@ module NotificationHub
       "NotificationHub::Channels::#{channel.to_s.camelize}::#{gateway.to_s.camelize}".constantize.new(options)
     end
 
-    def send_message(user_id, topic, variables, gateway = nil)
+    def send_now(event, data, options = nil)
+    	send_message(event, data, options)
+    end
+
+    def send(event, data, options = nil)
+    	NotificationHubJob.perform_later(event, data, options)
+    end
+
+    def send_message(event, data, options)
     	subscription = "Subscription"
+    	#query subsccriptions and find susbcription for the relevant event
     	
-    	channel = :email
-      "NotificationHub::Channels::#{channel.to_s.camelize}".constantize.send_message(topic, variables, gateway)
+      channels = [:email, :webhook]
+
+      channels.each do |channel|
+      	channel_const = "NotificationHub::Channels::#{channel.to_s.camelize}".constantize
+      	options_ = channel_const.options
+      	options_ = options_.merge(options) if options_.present? && options.present?
+      	channel_const.send_message(event, data, options_)
+      end      
     end
 
 	end

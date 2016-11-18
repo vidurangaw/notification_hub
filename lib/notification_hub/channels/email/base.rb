@@ -2,8 +2,9 @@ module NotificationHub
 	module Channels
 		module Email			
 	    class Base
-	    	def initialize(configuration)	   
-		     	NotificationHub::Channels::Email.default_gateway = self.class.gateway_code
+	    	def initialize(options)	   
+		     	NotificationHub::Channels::Email.gateway = self.class.gateway_code
+      		NotificationHub::Channels::Email.options = options
       	end
 	    end
 	  end
