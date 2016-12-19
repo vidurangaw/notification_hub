@@ -4,12 +4,12 @@ require "httparty"
 
 module NotificationHub  
 
-  module Channels
-    autoload 'Email', 'notification_hub/channels/email'
-    autoload 'Base', 'notification_hub/channels/email/base'
-    autoload 'ActionMailer', 'notification_hub/channels/email/action_mailer'
-    autoload 'Mandrill', 'notification_hub/channels/email/mandrill'
-  end
+  # module Channels
+  #   autoload 'Email', 'notification_hub/channels/email'
+  #   autoload 'Base', 'notification_hub/channels/email/base'
+  #   autoload 'ActionMailer', 'notification_hub/channels/email/action_mailer'
+  #   autoload 'Mandrill', 'notification_hub/channels/email/mandrill'
+  # end
 
   class << self  	
 		def test
