@@ -9,13 +9,14 @@ module NotificationHub
 	      end
 
 	      class << self
-					def send_message(event, data, options)					
-						event_ = event.split(".")			
+					def send_message(topic, data, options)					
+						topic_ = topic.split(".")			
+						
 						begin		
 							json_string = ActionController::Base.new.
-								render_to_string("notification_hub/webhook/#{event_[0]}/#{event_[1]}", locals: data)
+								render_to_string("#{options[:template_path]}/#{topic_[0]}/#{topic_[1]}", locals: data)
 							json_object = JSON.parse(json_string)
-							json_object[:event] = event
+							json_object[:topic] = topic
 
 							response = HTTParty.post(options[:url], { 
 						    :body => json_object.to_json,

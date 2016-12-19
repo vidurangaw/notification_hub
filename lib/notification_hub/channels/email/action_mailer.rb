@@ -9,9 +9,9 @@ module NotificationHub
 	      end
 
 	      class << self
-					def send_message(event, data, options)						
-						event = event.split(".")
-						"#{event[0].camelize}Mailer".constantize.send(event[1].to_sym, data).deliver
+					def send_message(topic, data, options)						
+						topic = topic.split(".")
+						"#{topic[0].camelize}Mailer".constantize.send(topic[1].to_sym, data).deliver
 					end
 
 					def gateway_code
