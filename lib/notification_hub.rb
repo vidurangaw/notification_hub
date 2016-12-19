@@ -1,18 +1,17 @@
 require "notification_hub/version"
-require 'http_logger'
+require "http_logger"
 require "httparty"
 
 module NotificationHub  
 
-	module Channels
-		autoload 'Email', 'notification_hub/channels/email'
+  module Channels
+    autoload 'Email', 'notification_hub/channels/email'
     autoload 'Base', 'notification_hub/channels/email/base'
     autoload 'ActionMailer', 'notification_hub/channels/email/action_mailer'
     autoload 'Mandrill', 'notification_hub/channels/email/mandrill'
   end
 
-  class << self  
-  	include HTTParty
+  class << self  	
 		def test
 			return "success"
 		end
@@ -34,25 +33,31 @@ module NotificationHub
       "NotificationHub::Channels::#{channel.to_s.camelize}::#{gateway.to_s.camelize}".constantize.new(options)
     end
 
-    def send_now(event, data, options = nil)
-    	send_message(event, data, options)
+    def send_now(topic, data, options = nil)
+    	send_message(topic, data, options)
     end
 
-    def send(event, data, options = nil)
-    	NotificationHubJob.perform_later(event, data, options)
+    def send(topic, data, options = nil)
+    	NotificationHubJob.perform_later(topic, data, options)
     end
 
-    def send_message(event, data, options)
+    def send_message(topic, data, options)
     	subscription = "Subscription"
-    	#query subsccriptions and find susbcription for the relevant event
+    	#query subsccriptions and find susbcription for the relevant topic
     	
-      channels = [:email, :webhook]
+      #channels = [:email, :webhook, :sms]
+      channels = [:webhook]
+
+      options = {
+        url: "https://httpbin.org/post",
+        phone_number: "+94716513320"
+      }
 
       channels.each do |channel|
       	channel_const = "NotificationHub::Channels::#{channel.to_s.camelize}".constantize
       	options_ = channel_const.options
       	options_ = options_.merge(options) if options_.present? && options.present?
-      	channel_const.send_message(event, data, options_)
+      	channel_const.send_message(topic, data, options_)
       end      
     end
 
