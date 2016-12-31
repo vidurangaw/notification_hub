@@ -2,13 +2,11 @@ module NotificationHub
 	module Channels
 		module Sms		
 	    class << self
-				attr_accessor :gateway
-				attr_accessor :options				
+				attr_accessor :default_gateway			
 
-				def send_message(topic, data, options)
-					options[:template_path] ||= "notification_hub/sms"
-
-					"NotificationHub::Channels::Sms::#{gateway.to_s.camelize}".constantize.send_message(topic, data, options)
+				def send_message(event_id, data, options, gateway = nil)
+					gateway ||= default_gateway
+					"NotificationHub::Channels::Sms::#{default_gateway.to_s.camelize}".constantize.send_message(event_id, data, options)
 				end
 			end
 	  end

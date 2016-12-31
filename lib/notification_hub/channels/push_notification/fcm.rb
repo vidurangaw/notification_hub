@@ -3,24 +3,25 @@ module NotificationHub
 	module Channels
 	  module PushNotification
 	    class Fcm < Base
-	      @@gateway_code = :fcm
-	      @@client = :fcm
-
-	      def initialize(configuration)	      	
-      		@@client = FCM.new(configuration[:api_key]) 
-	      	super
+	    	@gateway_code = :fcm
+				
+				def initialize(options)	 
+					self.class.client = FCM.new(options[:api_key]) 					
+					super
 	      end
 
 	      class << self
-					def send_message(topic, data, options)						
-						topic = topic.split(".")				
+	      	attr_accessor :client
+
+					def send_message(event_id, data, options)						
+						event = event_id.split(".")				
 
 						json_string = ActionController::Base.new.
-								render_to_string("#{options[:template_path]}/#{topic[0]}/#{topic[1]}", locals: data)
+								render_to_string("#{gateway_options[:template_path]}/#{event[0]}/#{event[1]}", locals: data)
 						json_object = JSON.parse(json_string)
 
 						tokens = options[:tokens].present? ? options[:tokens] : [options[:token]]
-						response = @@client.send(tokens, json_object)
+						response = client.send(tokens, json_object)
 			      case response[:status_code]
 			      when 200     
 			        response_body = JSON.parse(response[:body])
@@ -30,10 +31,6 @@ module NotificationHub
 			      else
 			        raise response[:response]
 			      end		
-					end
-
-					def gateway_code
-						@@gateway_code
 					end
 				end
 	    end

@@ -3,63 +3,57 @@ require "http_logger"
 require "httparty"
 
 module NotificationHub  
-
-  # module Channels
-  #   autoload 'Email', 'notification_hub/channels/email'
-  #   autoload 'Base', 'notification_hub/channels/email/base'
-  #   autoload 'ActionMailer', 'notification_hub/channels/email/action_mailer'
-  #   autoload 'Mandrill', 'notification_hub/channels/email/mandrill'
-  # end
+  mattr_accessor :user_class
+  mattr_accessor :events
+  @@user_class = "user"
 
   class << self  	
-		def test
-			return "success"
-		end
-
-		def send
-			puts "sent"
-		end
-
-		def configure
-      raise ArgumentError, 'No block given for configure' unless block_given?
+	
+		def setup
+      raise ArgumentError, 'No block given for setup' unless block_given?
       yield self   
     end
 
     def set_channel(*args)
-    	channel = args[0]
-    	gateway = args[1]
-    	options = args[2]
+    	channel = args[0]    	
+    	options = args[1]
+      gateway = options[:gateway]
     	
       "NotificationHub::Channels::#{channel.to_s.camelize}::#{gateway.to_s.camelize}".constantize.new(options)
     end
 
-    def send_now(topic, data, options = nil)
-    	send_message(topic, data, options)
+    def send_now(user_id, event_id, data, options)
+    	send_message(user_id, event_id, data, options)
     end
 
-    def send(topic, data, options = nil)
-    	NotificationHubJob.perform_later(topic, data, options)
+    def send(user_id, event_id, data, options)
+    	NotificationHubJob.perform_later(user_id, event_id, data, options)
     end
 
-    def send_message(topic, data, options)
-    	subscription = "Subscription"
-    	#query subsccriptions and find susbcription for the relevant topic
-    	
-      #channels = [:email, :webhook, :sms]
-      channels = [:webhook]
+    def send_message(user_id, event_id, data, options = nil)    	
+    	#query subsccriptions for the relevant event    	
+      susbcriptions = NotificationHub::Subscription.where("#{user_model}_id" => user_id)
 
       options = {
-        url: "https://httpbin.org/post",
-        phone_number: "+94716513320"
+        webhook_url: "https://httpbin.org/post",
+        phone_number: "+94716513320",
+        token: "dfSfHOsxo08:APA91bG25YM94QkkTsnBihEAg0VlocA7KRQuWo4P6Hyxn-_rPB0lpWqLkf4AIbcIuPxeGMh_5tWCYGjdfV98raXE8_APWvmuPpk-8t5SUEoRXMuPpZVvpuxpdTkrY2LR31zQdBzKkZsO"
       }
 
-      channels.each do |channel|
-      	channel_const = "NotificationHub::Channels::#{channel.to_s.camelize}".constantize
-      	options_ = channel_const.options
-      	options_ = options_.merge(options) if options_.present? && options.present?
-      	channel_const.send_message(topic, data, options_)
-      end      
+      susbcriptions.each do |susbcription|
+        if susbcription.gateway_id.present?
+          channel_const = "NotificationHub::Channels::#{susbcription.channel_id.camelize}::#{susbcription.gateway_id.camelize}".constantize
+        else
+          channel_const = "NotificationHub::Channels::#{susbcription.channel_id.camelize}".constantize
+        end
+        channel_const.send_message(event_id, data, options)
+      end     
     end
+
+
+    def user_model
+      NotificationHub.user_class.downcase
+    end 
 
 	end
 end
