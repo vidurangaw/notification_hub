@@ -5,8 +5,8 @@ class CreateNotificationHubDevices < ActiveRecord::Migration<%= migration_versio
       t.string :email, index: true
       t.string :webhook_url, index: true
       t.string :phone_number, index: true
-      t.string :mobile_token, index: true
-      t.string :mobile_platform
+      t.string :push_token, index: true
+      t.string :push_platform
       t.timestamps null: false 
     end
   end

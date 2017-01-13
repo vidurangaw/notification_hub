@@ -34,7 +34,7 @@ NotificationHub.configure do |config|
 
   #Define the events here
   config.events = {  
-    #"user.welcome": "Welcome message"
+    #"user.welcome" => "Welcome message"
   }
 
   #default value is User
