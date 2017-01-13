@@ -20,7 +20,7 @@ module NotificationHub
 								render_to_string("#{gateway_options[:template_path]}/#{event[0]}/#{event[1]}", locals: data)
 						json_object = JSON.parse(json_string)
 
-						tokens = options[:tokens].present? ? options[:tokens] : [options[:token]]
+						tokens = options[:push_tokens].present? ? options[:push_tokens] : [options[:push_token]]
 						response = client.send(tokens, json_object)
 			      case response[:status_code]
 			      when 200     
