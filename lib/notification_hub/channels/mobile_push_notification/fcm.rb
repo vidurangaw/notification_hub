@@ -1,7 +1,7 @@
 require 'fcm'
 module NotificationHub
 	module Channels
-	  module PushNotification
+	  module MobilePushNotification
 	    class Fcm < Base
 	    	@gateway_code = :fcm
 				

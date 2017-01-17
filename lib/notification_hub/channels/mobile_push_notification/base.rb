@@ -1,10 +1,10 @@
 module NotificationHub
 	module Channels
-		module PushNotification			
+		module MobilePushNotification			
 	    class Base
 	    	def initialize(options)     
-	    		PushNotification.default_gateway = self.class.gateway_code
-	      	options[:template_path] ||= "notification_hub/push_notification"
+	    		MobilePushNotification.default_gateway = self.class.gateway_code
+	      	options[:template_path] ||= "notification_hub/mobile_push_notification"
 					self.class.gateway_options = options		     	
       	end
 

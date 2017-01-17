@@ -25,11 +25,11 @@ NotificationHub.configure do |config|
   # gateway(required): FCM is the default push notification client    
   # api_key(required if using FCM): FCM api key
   # FCM parameters - https://firebase.google.com/docs/cloud-messaging/http-server-ref#notification-payload-support
-  # template_path(optional): default path is app/views/notification_hub/push_notification
-  config.set_channel :push_notification, {  
+  # template_path(optional): default path is app/views/notification_hub/mobile_push_notification
+  config.set_channel :mobile_push_notification, {  
     gateway: :fcm,
     api_key: "test"  
-    #template_path: "notification_hub/push_notification" 
+    #template_path: "notification_hub/mobile_push_notification" 
   }
 
   #Define the events here

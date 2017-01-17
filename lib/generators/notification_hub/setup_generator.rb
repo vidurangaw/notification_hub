@@ -9,7 +9,7 @@ module NotificationHub
       desc "Creates the notification template directories"
       def create_template_directories
         empty_directory "app/views/notification_hub/sms"
-        empty_directory "app/views/notification_hub/push_notification"
+        empty_directory "app/views/notification_hub/mobile_push_notification"
         empty_directory "app/views/notification_hub/webhook"
       end
     end
