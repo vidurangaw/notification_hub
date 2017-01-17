@@ -6,9 +6,28 @@ class NotificationHub::Device < <%= rails5? ? "ApplicationRecord" : "ActiveRecor
   has_many :notification_hub_subscriptions, class_name: 'NotificationHub::Subscription', through: :notification_hub_subscription_devices
   
   validates_presence_of :<%= user_model %>
+  validates_inclusion_of :channel_id, :in => ["email", "webhook", "sms", "mobile_push_notification"]
   validates_format_of :email, with: /\A[^@\s]+@[^@\s]+\z/, if: Proc.new { |d| d.email.present? }
   validates_format_of :webhook_url, with: URI::regexp(%w(http https)), if: Proc.new { |d| d.webhook_url.present? }
   validates_format_of :phone_number, with: /\A[^@\s]+@[^@\s]+\z/, if: Proc.new { |d| d.phone_number.present? }
   validates_presence_of :push_token, if: Proc.new { |d| d.push_platform.present? }
   validates_inclusion_of :push_platform, :in => ["android", "ios", "web"], if: Proc.new { |d| d.push_token.present? }
+
+  def channel_id
+    case self[:channel_id]
+    when 0 then "email"
+    when 1 then "webhook"
+    when 2 then "sms"
+    when 3 then "mobile_push_notification"
+    end
+  end
+
+  def channel_id=(value)
+    self[:channel_id] = case value
+    when "email"                     then 0
+    when "webhook"                   then 1
+    when "sms"                       then 2
+    when "mobile_push_notification"  then 3
+    end
+  end
 end
