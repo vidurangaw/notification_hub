@@ -24,15 +24,15 @@ module NotificationHub
       "NotificationHub::Channels::#{channel.to_s.camelize}::#{gateway.to_s.camelize}".constantize.new(options)
     end
 
-    def send_now(user_id, event_id, data, options)
-    	send_message(user_id, event_id, data, options)
+    def send_now(user_id, event_code, data, options)
+    	send_message(user_id, event_code, data, options)
     end
 
-    def send(user_id, event_id, data, options)
-    	NotificationHubJob.perform_later(user_id, event_id, data, options)
+    def send(user_id, event_code, data, options)
+    	NotificationHubJob.perform_later(user_id, event_code, data, options)
     end
 
-    def send_message(user_id, event_id, data, options = nil)  
+    def send_message(user_id, event_code, data, options = nil)  
     	# Query subsccriptions for the relevant event    	
       susbcriptions = NotificationHub::Subscription.where("#{user_model}_id" => user_id)
 
@@ -46,16 +46,16 @@ module NotificationHub
       # }
 
       susbcriptions.each do |susbcription|
-        if susbcription.gateway_id.present?
-          channel_const = "NotificationHub::Channels::#{susbcription.channel_id.camelize}::#{susbcription.gateway_id.camelize}".constantize
+        if susbcription.gateway_code.present?
+          channel_const = "NotificationHub::Channels::#{susbcription.channel_code.camelize}::#{susbcription.gateway_code.camelize}".constantize
         else
-          channel_const = "NotificationHub::Channels::#{susbcription.channel_id.camelize}".constantize
+          channel_const = "NotificationHub::Channels::#{susbcription.channel_code.camelize}".constantize
         end
 
         susbcription.notification_hub_devices.try(:each) do |device|
           device_details = device.attributes.symbolize_keys
           begin
-            channel_const.send_message(event_id, data, device_details)
+            channel_const.send_message(event_code, data, device_details)
           rescue => e
             NotificationHub.logger.error e.message
           end          

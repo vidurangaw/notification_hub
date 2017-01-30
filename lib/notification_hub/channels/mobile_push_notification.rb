@@ -4,9 +4,9 @@ module NotificationHub
 	    class << self
 				attr_accessor :default_gateway
 
-				def send_message(event_id, data, options, gateway = nil)
+				def send_message(event_code, data, options, gateway = nil)
 					gateway ||= default_gateway			
-					"NotificationHub::Channels::MobilePushNotification::#{gateway.to_s.camelize}".constantize.send_message(event_id, data, options)
+					"NotificationHub::Channels::MobilePushNotification::#{gateway.to_s.camelize}".constantize.send_message(event_code, data, options)
 				end
 			end
 	  end

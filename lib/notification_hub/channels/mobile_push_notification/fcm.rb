@@ -13,8 +13,8 @@ module NotificationHub
 	      class << self
 	      	attr_accessor :client
 
-					def send_message(event_id, data, options)						
-						event = event_id.split(".")				
+					def send_message(event_code, data, options)						
+						event = event_code.split(".")				
 
 						json_string = ActionController::Base.new.
 								render_to_string("#{gateway_options[:template_path]}/#{event[0]}/#{event[1]}", locals: data)

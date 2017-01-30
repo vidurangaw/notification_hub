@@ -9,8 +9,8 @@ module NotificationHub
 	      end
 
 	      class << self
-					def send_message(event_id, data, options)						
-						event = event_id.split(".")
+					def send_message(event_code, data, options)						
+						event = event_code.split(".")
 						"#{event[0].camelize}Mailer".constantize.send(event[1].to_sym, data, options[:email]).deliver
 					end
 				end
