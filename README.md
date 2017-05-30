@@ -20,9 +20,73 @@ Or install it yourself as:
 
     $ gem install notification_hub
 
+## INTRODUCTION
+
+This gem can be used to centralize the notification dispatching of an application.
+
+Currently, this gem supports 5 notification channels
+* Email	
+* Webhook
+* SMS
+* Mobile Push Notifications
+* Web Push Notifications
+
+Each channel can be configured to use with a gateway. 
+Below gateways are already bult-in. You can always add custom gateways.
+* Email	- ActionMailer
+* Webhook - HTTParty
+* SMS - AWS
+* Mobile Push Notifications - FCM(Firebase Cloud Messaging)
+* Web Push Notifications - FCM(Firebase Cloud Messaging)
+
+## SETUP
+
+Step 1
+Generate relavant configuration and template files
+
+rails generate notification_hub [Association Model] 
+*Association Model: default value is "user"
+*Currently, ActiveRecord ORM is only supported.
+
+Step 2
+Background processor intergration (Optional)
+
+rails generate notification_hub:job [Background Processor] [Queue]
+*Background Processor: options ["active_job", "sidekiq"]
+*Queue: default value is "default"
+
+Step 3
+Run database migrations
+
+rails db:migrate
+
+
 ## Usage
 
-TODO: Write usage instructions here
+Step 1
+Complete gateway settings in configuration file (config/initializers/notification_hub.rb)
+Example: Push notifications
+config.set_channel :mobile_push_notification, {  
+  gateway: :fcm,
+  server_key: "test"
+}
+
+Step 2
+Define events in configuration file (config/initializers/notification_hub.rb)
+Example:
+config.events = {  
+  "user.signed_up" => "When an user is signed up",
+  "user.trial_ended" => "When the trial period is ended",
+  "message.received" => "When a message is received"
+}
+
+
+Step 2
+Create message templates
+
+Examples: URL
+
+
 
 ## Development
 
