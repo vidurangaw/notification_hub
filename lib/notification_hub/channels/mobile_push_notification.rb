@@ -1,3 +1,5 @@
+require 'notification_hub/channels/mobile_push_notification/fcm'
+
 module NotificationHub
 	module Channels
 		module MobilePushNotification		
