@@ -1,3 +1,5 @@
+require 'notification_hub/channels/email/action_mailer'
+
 module NotificationHub
 	module Channels
 		module Email			

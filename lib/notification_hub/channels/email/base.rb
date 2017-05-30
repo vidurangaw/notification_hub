@@ -4,8 +4,7 @@ module NotificationHub
 	    class Base
 	    	def initialize(options)	   
 		     	Email.default_gateway = self.class.gateway_code
-		     	#options[:template_path] ||= "notification_hub/email"
-					#self.class.gateway_options = options	
+					self.class.gateway_options = options	
       	end
 
       	class << self    	
