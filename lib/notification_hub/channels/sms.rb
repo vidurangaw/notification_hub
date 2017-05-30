@@ -1,3 +1,5 @@
+require 'notification_hub/channels/sms/aws'
+
 module NotificationHub
 	module Channels
 		module Sms		
