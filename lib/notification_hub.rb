@@ -1,49 +1,56 @@
 require "notification_hub/version"
 require "http_logger"
 require "httparty"
+require 'notification_hub/channels/email'
+require 'notification_hub/channels/mobile_push_notification'
+require 'notification_hub/channels/browser_push_notification'
+require 'notification_hub/channels/sms'
+require 'notification_hub/channels/webhook'
+require 'notification_hub/subscription_manager'
+require 'notification_hub/device_manager'
 
 module NotificationHub  
-  mattr_accessor :user_class
+  mattr_accessor :association_model
   mattr_accessor :events
   mattr_accessor :logger     
 
   class << self    
-		def setup
-      @@user_class = "User"
-      @@logger = Rails.logger
-
-      raise ArgumentError, 'No block given for setup' unless block_given?
-      yield self   
+    def configure
+      @@association_model ||= "user"
+      @@logger = Logger.new("#{Rails.root}/log/notification_hub.log")
+      yield self
     end
 
     def set_channel(*args)
-    	channel = args[0]    	
+    	channel = args[0]
     	options = args[1]
       gateway = options[:gateway]
-    	
+
       "NotificationHub::Channels::#{channel.to_s.camelize}::#{gateway.to_s.camelize}".constantize.new(options)
     end
 
-    def send_now(user_id, event_code, data, options)
-    	send_message(user_id, event_code, data, options)
+    def deliver_now(association_model_id, event_code, data, options=nil)
+    	send_message(association_model_id, event_code, data, options)      
     end
 
-    def send(user_id, event_code, data, options)
-    	NotificationHubJob.perform_later(user_id, event_code, data, options)
+    def deliver(association_model_id, event_code, data, options=nil)      
+      #NotificationHubJob.perform_later(association_model_id, event_code, data, options)      
+      NotificationHubJob.perform_async(association_model_id, event_code, data, options)    
     end
 
-    def send_message(user_id, event_code, data, options = nil)  
-    	# Query subsccriptions for the relevant event    	
-      susbcriptions = NotificationHub::Subscription.where("#{user_model}_id" => user_id)
+    def send_message(association_model_id, event_code, data_wrapper, options)       
+      # Fetch data from the database if record id is passed.
+      data = {}
+      data_wrapper.each do |key,value|
+        if value.is_a?(Integer)
+          data[key.to_sym] = key.to_s.classify.constantize.find_by_id(value)
+        else
+          data[key.to_sym] = value
+        end
+      end
 
-      # Example device details
-      # device_details = {
-      #   email: "vpowerrc@gmail.com",
-      #   webhook_url: "https://httpbin.org/post",
-      #   phone_number: "+94716513320",
-      #   push_token: "dfSfHOsxo08:APA91bG25YM94QkkTsnBihEAg0VlocA7KRQuWo4P6Hyxn-_rPB0lpWqLkf4AIbcIuPxeGMh_5tWCYGjdfV98raXE8_APWvmuPpk-8t5SUEoRXMuPpZVvpuxpdTkrY2LR31zQdBzKkZsO",
-      #   push_platform: "android"
-      # }
+    	# Query subsccriptions for the relevant event.    	
+      susbcriptions = NotificationHub::Subscription.where("#{association_model}_id" => association_model_id, event_code: event_code)
 
       susbcriptions.each do |susbcription|
         if susbcription.gateway_code.present?
@@ -58,15 +65,24 @@ module NotificationHub
             channel_const.send_message(event_code, data, device_details)
           rescue => e
             NotificationHub.logger.error e.message
+            e.backtrace.each { |line| NotificationHub.logger.error line }
           end          
         end
       end     
     end
 
-
-    def user_model
-      NotificationHub.user_class.downcase
-    end 
-
+    def send_direct(event_code, data, device_details, channel_code, gateway_code=nil)   
+      if susbcription.gateway_code.present?
+        channel_const = "NotificationHub::Channels::#{susbcription.channel_code.camelize}::#{susbcription.gateway_code.camelize}".constantize
+      else
+        channel_const = "NotificationHub::Channels::#{susbcription.channel_code.camelize}".constantize
+      end
+      begin
+        channel_const.send_message(event_code, data, device_details)
+      rescue => e
+        NotificationHub.logger.error e.message
+        e.backtrace.each { |line| NotificationHub.logger.error line }
+      end     
+    end
 	end
 end
