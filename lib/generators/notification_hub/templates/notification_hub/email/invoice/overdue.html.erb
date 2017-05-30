@@ -1,0 +1,9 @@
+<%= render partial: "shared/system_emails/email_header", formats: :html %>
+
+<p> <%= "#{I18n.t(:greeting, scope: LocaleScope::SCOPE_MESSAGES_GENERIC)} #{sanitize(@user.first_name)}," %> </p>
+<p> <%= "#{I18n.t(:invoice, scope: LocaleScope::SCOPE_NOTIFICATIONS_INVOICE)} #{sanitize(@invoice.statement_no)} #{I18n.t(:for, scope: LocaleScope::SCOPE_NOTIFICATIONS_GENERIC)} #{sanitize(@invoice.business.connection_name)} #{I18n.t(:is_now_overdue, scope: LocaleScope::SCOPE_NOTIFICATIONS_INVOICE)}." %> </p>
+<p> <%= I18n.t(:more_details, scope: LocaleScope::SCOPE_MESSAGES_GENERIC) %>: </p>
+<p> <%= link_to @invoice.formatted_invoice_url %> </p>
+<p> &mdash; <%= I18n.t(:sent_by, scope: LocaleScope::SCOPE_MESSAGES_GENERIC) %> </p>
+
+<%= render partial: "shared/system_emails/email_footer", formats: :html, locals: {notification_hub_message: true } %>

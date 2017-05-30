@@ -1,0 +1,9 @@
+<%= render partial: "shared/system_emails/email_header", formats: :html %>
+
+<p> <%= "#{I18n.t(:greeting, scope: LocaleScope::SCOPE_MESSAGES_GENERIC)} #{sanitize(@user.first_name)}," %> </p>
+<p> <%= "#{I18n.t(:estimate, scope: LocaleScope::SCOPE_MESSAGES_GENERIC)} #{sanitize(@estimate.statement_no)} - #{I18n.t(:estimate, scope: LocaleScope::SCOPE_MESSAGES_GENERIC)} #{I18n.t(:viewed_by_downcase, scope: LocaleScope::SCOPE_MESSAGES_GENERIC)} #{sanitize(@estimate.business.connection_name)}." %> </p>
+<p> <%= I18n.t(:more_details, scope: LocaleScope::SCOPE_MESSAGES_GENERIC) %>: </p>
+<p> <%= link_to @estimate.formatted_estimate_url %> </p>
+<p> &mdash; <%= I18n.t(:sent_by, scope: LocaleScope::SCOPE_MESSAGES_GENERIC) %> </p>
+
+<%= render partial: "shared/system_emails/email_footer", formats: :html, locals: {notification_hub_message: true } %>

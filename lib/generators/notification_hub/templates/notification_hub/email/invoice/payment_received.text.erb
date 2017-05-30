@@ -1,0 +1,13 @@
+<%= "#{I18n.t(:greeting, scope: LocaleScope::SCOPE_MESSAGES_GENERIC)} #{sanitize(@user.first_name)}," %>
+
+<%= "#{I18n.t(:recieved_payment, scope: LocaleScope::SCOPE_MESSAGES_SPECIFIC)} #{sanitize(@invoice.business.connection_name)}." %>
+
+<%= "#{I18n.t(:invoice, scope: LocaleScope::SCOPE_MESSAGES_GENERIC)}: #{sanitize(@invoice.statement_no)}" %>
+
+<%= "#{I18n.t(:amount_paid, scope: LocaleScope::SCOPE_MESSAGES_SPECIFIC)}: #{sanitize(@payment.currency)} #{sanitize(@payment.amount.format_with_decimal(2))} (#{I18n.t(:via, scope: LocaleScope::SCOPE_MESSAGES_SPECIFIC)} #{@payment.payment_method_name})" %>
+
+<%= I18n.t(:more_details, scope: LocaleScope::SCOPE_MESSAGES_GENERIC) %>:
+
+<%= link_to @invoice.formatted_invoice_url %>
+
+&mdash; <%= I18n.t(:sent_by, scope: LocaleScope::SCOPE_MESSAGES_GENERIC) %>

@@ -1,0 +1,11 @@
+<%= "#{I18n.t(:greeting, scope: LocaleScope::SCOPE_MESSAGES_GENERIC)} #{sanitize(@user.first_name)}," %>
+
+<%= "#{I18n.t(:your_invoice, scope: LocaleScope::SCOPE_MESSAGES_SPECIFIC)} #{sanitize(@invoice.statement_no)} #{I18n.t(:has_recieved, scope: LocaleScope::SCOPE_MESSAGES_SPECIFIC)} #{sanitize(@invoice.business.connection_name)}." %>
+
+<%= I18n.t(:realized, scope: LocaleScope::SCOPE_MESSAGES_SPECIFIC) %>.
+
+<%= I18n.t(:more_details, scope: LocaleScope::SCOPE_MESSAGES_GENERIC) %>:
+
+<%= link_to @invoice.formatted_invoice_url %>
+
+&mdash; <%= I18n.t(:sent_by, scope: LocaleScope::SCOPE_MESSAGES_GENERIC) %>
