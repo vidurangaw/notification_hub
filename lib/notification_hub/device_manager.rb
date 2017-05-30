@@ -3,7 +3,7 @@ module NotificationHub
 	  class << self
 
 			def create_device(association_model_id, channel_code, device_details)
-				NotificationHub::Device.where("#{NotificationHub.association_model}_id" => user_id, 
+				NotificationHub::Device.where("#{NotificationHub.association_model}_id" => association_model_id, 
 					channel_code: channel_code).where(device_details).first_or_create!
 			end
 
