@@ -1,3 +1,5 @@
+require 'notification_hub/channels/webhook/httparty'
+
 module NotificationHub
 	module Channels
 		module Webhook		

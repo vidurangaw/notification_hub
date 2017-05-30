@@ -5,6 +5,7 @@ module NotificationHub
 	    	def initialize(options)	   
 		     	Webhook.default_gateway = self.class.gateway_code
 		     	options[:template_path] ||= "notification_hub/webhook"
+		     	options[:timeout_time] ||= 10
 					self.class.gateway_options = options	
       	end
 
