@@ -33,9 +33,12 @@ module NotificationHub
     	send_message(association_model_id, event_code, data, options)      
     end
 
-    def deliver(association_model_id, event_code, data, options=nil)      
-      #NotificationHubJob.perform_later(association_model_id, event_code, data, options)      
-      NotificationHubJob.perform_async(association_model_id, event_code, data, options)    
+    def deliver(association_model_id, event_code, data, options=nil)   
+      if NotificationHubJob.respond_to?("perform_later".to_sym)   
+        NotificationHubJob.perform_later(association_model_id, event_code, data, options)      
+      elsif NotificationHubJob.respond_to?("async0_later".to_sym)
+        NotificationHubJob.perform_async(association_model_id, event_code, data, options)    
+      end
     end
 
     def send_message(association_model_id, event_code, data_wrapper, options)       
@@ -72,10 +75,10 @@ module NotificationHub
     end
 
     def send_direct(event_code, data, device_details, channel_code, gateway_code=nil)   
-      if susbcription.gateway_code.present?
-        channel_const = "NotificationHub::Channels::#{susbcription.channel_code.camelize}::#{susbcription.gateway_code.camelize}".constantize
+      if gateway_code.present?
+        channel_const = "NotificationHub::Channels::#{channel_code.camelize}::#{gateway_code.camelize}".constantize
       else
-        channel_const = "NotificationHub::Channels::#{susbcription.channel_code.camelize}".constantize
+        channel_const = "NotificationHub::Channels::#{channel_code.camelize}".constantize
       end
       begin
         channel_const.send_message(event_code, data, device_details)
