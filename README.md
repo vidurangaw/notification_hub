@@ -24,12 +24,12 @@ Or install it yourself as:
 
 This gem can be used to centralize the notification dispatching of an application.
 
-Currently, this gem supports 5 notification channels
+Currently, this gem supports 5 notification channels.
 * Email	
 * Webhook
 * SMS
 * Mobile Push Notifications
-* Web Push Notifications
+* Browser Push Notifications
 
 Each channel can be configured to use with a gateway. 
 Below gateways are already bult-in. You can always add custom gateways.
@@ -37,7 +37,7 @@ Below gateways are already bult-in. You can always add custom gateways.
 * Webhook - HTTParty
 * SMS - AWS
 * Mobile Push Notifications - FCM(Firebase Cloud Messaging)
-* Web Push Notifications - FCM(Firebase Cloud Messaging)
+* Browser Push Notifications - FCM(Firebase Cloud Messaging)
 
 ## SETUP
 
@@ -75,18 +75,31 @@ Step 2
 Define events in configuration file (config/initializers/notification_hub.rb)
 Example:
 config.events = {  
+	[Event Code] => [Event Name],
   "user.signed_up" => "When an user is signed up",
   "user.trial_ended" => "When the trial period is ended",
   "message.received" => "When a message is received"
 }
 
+Event code is namespaced by ".". For example, you can use relevant model name
+as the first part of the code and actual event name as the last part,
 
 Step 2
 Create message templates
 
 Examples: URL
 
+For emails you need to create mailers too.
+Example: (app/mailers/user_mailer.rb)
+class UserMailer < ActionMailer::Base
+  def signed_up(data, to_email)
+    mail(to: to_email, subject: "Welcome to XYZ")
+  end
 
+  def trial_ended(data, to_email)
+    mail(to: to_email, subject: "[XYZ] Trial period ended")
+  end
+end
 
 ## Development
 
