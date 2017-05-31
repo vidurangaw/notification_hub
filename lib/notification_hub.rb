@@ -36,7 +36,7 @@ module NotificationHub
     def deliver(association_model_id, event_code, data, options=nil)   
       if NotificationHubJob.respond_to?("perform_later".to_sym)   
         NotificationHubJob.perform_later(association_model_id, event_code, data, options)      
-      elsif NotificationHubJob.respond_to?("async_later".to_sym)
+      elsif NotificationHubJob.respond_to?("perform_async".to_sym)
         NotificationHubJob.perform_async(association_model_id, event_code, data, options)    
       end
     end
