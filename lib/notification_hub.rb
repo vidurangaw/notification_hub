@@ -53,7 +53,13 @@ module NotificationHub
       end
     end
 
-    def send_message(association_model_id, event_code, data_wrapper)       
+    def send_message(association_model_id, event_code, data_wrapper)  
+      unless NotificationHub.events.keys.include? event_code
+        NotificationHub.logger.error "Event code is not registered"
+        NotificationHub.logger.error "Event:#{event_code}"
+        raise "Event code is not registered"
+      end
+
       # Fetch data from the database if record id is passed.
       data = {}
       data_wrapper.each do |key,value|
@@ -80,6 +86,7 @@ module NotificationHub
             channel_const.send_message(event_code, data, device_details)
           rescue => e
             NotificationHub.logger.error e.message
+            NotificationHub.logger.error "Event:#{event_code}  Channel:#{susbcription.channel_code}  Subscription: #{susbcription.id}  Device:#{device.id}"
             e.backtrace.each { |line| NotificationHub.logger.error line }
           end          
         end
@@ -87,6 +94,7 @@ module NotificationHub
     end
 
     def send_direct_message(event_code, data_wrapper, device_details, channel_code, gateway_code=nil)   
+
       # Fetch data from the database if record id is passed.
       data = {}
       data_wrapper.each do |key,value|
@@ -106,6 +114,7 @@ module NotificationHub
         channel_const.send_message(event_code, data, device_details)
       rescue => e
         NotificationHub.logger.error e.message
+        NotificationHub.logger.error "Event:#{event_code}  Channel:#{channel_code}  Device:#{device_details.to_json}"
         e.backtrace.each { |line| NotificationHub.logger.error line }
       end     
     end
