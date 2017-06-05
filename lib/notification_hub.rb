@@ -29,19 +29,31 @@ module NotificationHub
       "NotificationHub::Channels::#{channel.to_s.camelize}::#{gateway.to_s.camelize}".constantize.new(options)
     end
 
-    def deliver_now(association_model_id, event_code, data, options=nil)
-    	send_message(association_model_id, event_code, data, options)      
+    def deliver_now(association_model_id, event_code, data)
+    	send_message(association_model_id, event_code, data)      
     end
 
-    def deliver(association_model_id, event_code, data, options=nil)   
+    def deliver(association_model_id, event_code, data)   
       if NotificationHubJob.respond_to?("perform_later".to_sym)   
-        NotificationHubJob.perform_later(association_model_id, event_code, data, options)      
+        NotificationHubJob.perform_later("deliver", association_model_id, event_code, data)      
       elsif NotificationHubJob.respond_to?("perform_async".to_sym)
-        NotificationHubJob.perform_async(association_model_id, event_code, data, options)    
+        NotificationHubJob.perform_async("deliver", association_model_id, event_code, data)    
       end
     end
 
-    def send_message(association_model_id, event_code, data_wrapper, options)       
+    def deliver_direct_now(event_code, data, device_details, channel_code, gateway_code=nil)
+      send_direct_message(event_code, data, device_details, channel_code, gateway_code)     
+    end
+
+    def deliver_direct(event_code, data, device_details, channel_code, gateway_code=nil)   
+      if NotificationHubJob.respond_to?("perform_later".to_sym)   
+        NotificationHubJob.perform_later("deliver_direct", nil, event_code, data, device_details, channel_code, gateway_code)      
+      elsif NotificationHubJob.respond_to?("perform_async".to_sym)
+        NotificationHubJob.perform_async("deliver_direct", nil, event_code, data, device_details, channel_code, gateway_code)    
+      end
+    end
+
+    def send_message(association_model_id, event_code, data_wrapper)       
       # Fetch data from the database if record id is passed.
       data = {}
       data_wrapper.each do |key,value|
@@ -74,7 +86,17 @@ module NotificationHub
       end     
     end
 
-    def send_direct(event_code, data, device_details, channel_code, gateway_code=nil)   
+    def send_direct_message(event_code, data_wrapper, device_details, channel_code, gateway_code=nil)   
+      # Fetch data from the database if record id is passed.
+      data = {}
+      data_wrapper.each do |key,value|
+        if value.is_a?(Integer)
+          data[key.to_sym] = key.to_s.classify.constantize.find_by_id(value)
+        else
+          data[key.to_sym] = value
+        end
+      end
+
       if gateway_code.present?
         channel_const = "NotificationHub::Channels::#{channel_code.camelize}::#{gateway_code.camelize}".constantize
       else
